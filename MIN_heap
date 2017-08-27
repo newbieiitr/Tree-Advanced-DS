@@ -1,0 +1,133 @@
+#include <iostream>
+#include <vector>
+#include <utility>
+#include <unordered_map>
+using namespace std;
+typedef pair <int,int> P;
+class minbin {
+   vector <pair <int,int> > bin;
+    unordered_map <int,int> hash;
+     unordered_map <int,int> rev;
+    
+    public:
+    minbin(){}
+    bool contain(int index);
+    void decrese(int index,int value);
+    void add (int index,int value);
+    void heapify(int pos);
+    int extractmin();
+    void prin();
+    void prinI();    
+    
+};
+ bool minbin::contain(int index){
+     if(hash.find(index)==hash.end()) return 0;
+     else return 1;
+ }
+void  minbin::decrese(int index,int value){
+    int pos=hash[index];
+    cout<<pos<<endl;
+  cout<<bin[pos].first<<" "<<bin[pos].second<<endl;
+    bin[pos].first=value;
+    
+    while(pos>0&&bin[pos].first<bin[(pos-1)/2].first){
+        P temp=bin[(pos-1)/2];
+        bin[(pos-1)/2]=bin[pos];
+        bin[pos]=temp;
+       
+        hash[ bin[(pos-1)/2].second]=(pos-1)/2;
+        hash[temp.second]=pos;
+        pos=(pos-1)/2;
+        
+    }
+    
+}
+ void minbin::add (int index,int value){
+     bin.push_back(make_pair(value,index));
+     hash[index]=bin.size()-1;
+     heapify(bin.size()-1);
+ }
+  void minbin::heapify(int pos){
+      
+       while(pos>0&&bin[pos].first<bin[(pos-1)/2].first){
+            P temp=bin[(pos-1)/2];
+        bin[(pos-1)/2]=bin[pos];
+        bin[pos]=temp;
+       
+        hash[bin[(pos-1)/2].second]=(pos-1)/2;
+        hash[temp.second]=pos;
+        pos=(pos-1)/2;
+  } }
+int minbin::extractmin(){
+    P p1=bin[bin.size()-1];
+    int mini=bin[0].first;
+    hash.erase(bin[0].second);
+    bin[0]=p1;
+    bin.pop_back();
+    hash[p1.second]=0;
+    int pos=0;
+    int flag=0;
+    while((2*pos+1)<bin.size()&&flag==0){
+         P L=bin[2*pos+1];
+        if((2*pos+2)<bin.size()){
+           
+            P R=bin[2*pos+2];
+            if(bin[pos].first<=min(L.first,R.first)) flag=1;
+            else{
+                if(L.first<R.first) {
+                    
+                     bin[2*pos+1]=bin[pos];
+                     bin[pos]=L;
+       
+                     hash[bin[2*pos+1].second]=2*pos+1;
+                     hash[L.second]=pos;
+                     pos=2*pos+1;
+                }
+                else {
+                    bin[2*pos+2]=bin[pos];
+                     bin[pos]=R;
+       
+                     hash[bin[2*pos+2].second]=2*pos+2;
+                     hash[R.second]=pos;
+                     pos=2*pos+2; 
+                }
+            }
+        }
+        else if(bin[pos].first<=L.first) flag=1;
+        else {
+            bin[2*pos+1]=bin[pos];
+                     bin[pos]=L;
+       
+                     hash[bin[2*pos+1].second]=2*pos+1;
+                     hash[L.second]=pos;
+                     pos=2*pos+1;
+        }
+    }
+    return mini;
+}
+void minbin::prin(){
+    for(int i=0;i<bin.size();i++) cout<<bin[i].first<<" ";
+    cout<<endl;
+}
+void minbin::prinI(){
+     for(int i=0;i<bin.size();i++) cout<<bin[i].first<<" "<<bin[i].second<<endl;
+   
+}
+int main() {
+	// your code goes here
+	minbin* abc =new minbin();
+	abc->add(2,6);
+	abc->add(3,4);
+	abc->add(4,5);
+	abc->add(0,-1);
+	abc->add(5,7);
+	abc->add(1,2);
+	abc->add(6,8);
+	abc->prin();
+	cout<<abc->extractmin()<<endl;
+	abc->prin();
+	abc->prinI();
+	abc->decrese(5,0);
+	abc->prin();
+	return 0;
+}
